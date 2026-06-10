@@ -23,6 +23,10 @@ bun install
 bun start
 ```
 
+## 🎥 Preview
+
+https://github.com/user-attachments/assets/a6db3380-2e4d-49ff-96fa-0bf2987636d6
+
 ---
 
 ## 🚀 Usage
