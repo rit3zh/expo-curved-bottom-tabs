@@ -31,7 +31,7 @@ https://github.com/user-attachments/assets/a6db3380-2e4d-49ff-96fa-0bf2987636d6
 
 ## 🚀 Usage
 
-Wire `CurvedTabBar` into the `tabBar` prop on `<Tabs>` — see [src/app/_layout.tsx](src/app/_layout.tsx).
+Wire `CurvedTabBar` into the `tabBar` prop on `<Tabs>` — see [src/app/\_layout.tsx](src/app/_layout.tsx).
 
 ```tsx
 import { Tabs } from "expo-router/tabs";
@@ -78,12 +78,12 @@ export default function RootLayout() {
 </CurvedTabs>
 ```
 
-| Component               | Description                                                              |
-| ----------------------- | ------------------------------------------------------------------------ |
-| `CurvedTabs`            | Root that renders the Skia surface, reads route state, and owns gestures |
-| `CurvedTabs.List`       | Declares the set of tabs (a container for `Trigger`s)                    |
-| `CurvedTabs.Trigger`    | Declares a single tab by its route `name`                                |
-| `CurvedTabs.Indicator`  | Opts the sliding glass pill into the bar                                 |
+| Component              | Description                                                              |
+| ---------------------- | ------------------------------------------------------------------------ |
+| `CurvedTabs`           | Root that renders the Skia surface, reads route state, and owns gestures |
+| `CurvedTabs.List`      | Declares the set of tabs (a container for `Trigger`s)                    |
+| `CurvedTabs.Trigger`   | Declares a single tab by its route `name`                                |
+| `CurvedTabs.Indicator` | Opts the sliding glass pill into the bar                                 |
 
 `List`, `Trigger`, and `Indicator` are marker components — they render `null` and exist purely so the root can parse children and decide what to draw. The actual rendering (surface, icons, pill) is handled by `CurvedTabs.Root`.
 
