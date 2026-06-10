@@ -1,56 +1,133 @@
-# Welcome to your Expo app 👋
+# expo-curved-bottom-tabs
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A curved, liquid-glass bottom tab bar for Expo Router with a draggable glass pill.
 
-## Get started
+## ✨ Features
 
-1. Install dependencies
+- 🌊 Skia-powered curved tab bar surface with subtle bead detailing
+- 🫧 Liquid-glass pill indicator (`expo-glass-effect`) with a graceful fallback
+- 👆 Draggable pill — pan across the bar and it snaps + navigates to the nearest tab
+- 🪄 Dual-spring pill animation (snappy lead, smooth trail) for a natural follow
+- 🧩 Compound component API that plugs straight into Expo Router's `tabBar`
+- 🎯 SF Symbols icons with Ionicons fallback, resolved per route
+- 🧠 Fully typed with TypeScript
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## ⚙️ Installation
 
 ```bash
-npm run reset-project
+git clone https://github.com/rit3zh/expo-curved-bottom-tabs
+cd expo-curved-bottom-tabs
+bun install
+bun start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## 🚀 Usage
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Wire `CurvedTabBar` into the `tabBar` prop on `<Tabs>` — see [src/app/_layout.tsx](src/app/_layout.tsx).
 
-## Learn more
+```tsx
+import { Tabs } from "expo-router/tabs";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-To learn more about developing your project with Expo, look at the following resources:
+import { CurvedTabBar } from "@/components";
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+export default function RootLayout() {
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Tabs
+        tabBar={(props) => <CurvedTabBar {...props} />}
+        screenOptions={{ headerShown: false, animation: "shift" }}
+        detachInactiveScreens={false}
+      >
+        <Tabs.Screen name="index" options={{ title: "Home" }} />
+        <Tabs.Screen name="search" options={{ title: "Search" }} />
+        <Tabs.Screen name="apps" options={{ title: "Apps" }} />
+        <Tabs.Screen name="library" options={{ title: "Library" }} />
+        <Tabs.Screen name="profile" options={{ title: "Profile" }} />
+      </Tabs>
+    </GestureHandlerRootView>
+  );
+}
+```
 
-## Join the community
+> [!IMPORTANT]
+> Wrap your app in `GestureHandlerRootView` — the draggable pill depends on `react-native-gesture-handler`.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🧱 Component Anatomy
+
+`CurvedTabBar` is a thin wrapper that composes the compound `CurvedTabs` API from your route state. Under the hood it looks like this:
+
+```tsx
+<CurvedTabs {...props}>
+  <CurvedTabs.List>
+    {props.state.routes.map((route) => (
+      <CurvedTabs.Trigger key={route.key} name={route.name} />
+    ))}
+  </CurvedTabs.List>
+  <CurvedTabs.Indicator />
+</CurvedTabs>
+```
+
+| Component               | Description                                                              |
+| ----------------------- | ------------------------------------------------------------------------ |
+| `CurvedTabs`            | Root that renders the Skia surface, reads route state, and owns gestures |
+| `CurvedTabs.List`       | Declares the set of tabs (a container for `Trigger`s)                    |
+| `CurvedTabs.Trigger`    | Declares a single tab by its route `name`                                |
+| `CurvedTabs.Indicator`  | Opts the sliding glass pill into the bar                                 |
+
+`List`, `Trigger`, and `Indicator` are marker components — they render `null` and exist purely so the root can parse children and decide what to draw. The actual rendering (surface, icons, pill) is handled by `CurvedTabs.Root`.
+
+---
+
+## 🛠️ How It Works
+
+1. **Geometry** — `useTabBarGeometry` measures the bar width and computes the arc, per-tab centers, pill width, and the Skia bead points.
+2. **Surface** — `TabBarSurface` paints the curved bar (liquid glass when available, a fallback otherwise).
+3. **Pill** — `usePillAnimation` drives the glass indicator with two springs (`SPRING_LEAD` / `SPRING_TRAIL`) so it leads quickly and settles smoothly on the active tab.
+4. **Gesture** — `usePillGesture` lets you drag the pill; on release it snaps to the nearest tab center and calls `navigation.navigate`.
+5. **Icons** — `TabBarIcons` resolves each route to an SF Symbol (with an Ionicons fallback) via `TAB_META`.
+
+---
+
+## 🎛️ Customization
+
+Change values in [src/constants/tab-bar.ts](src/constants/tab-bar.ts) to reshape the bar:
+
+| Constant       | Description                                              |
+| -------------- | -------------------------------------------------------- |
+| `ARC_HEIGHT`   | How deep the curve dips                                  |
+| `THICKNESS`    | Bar thickness (drives overall height)                    |
+| `EDGE_PAD`     | Horizontal padding before the first / after the last tab |
+| `PILL_HEIGHT`  | Height of the sliding glass pill                         |
+| `ICON_SIZE`    | Icon glyph size                                          |
+| `ICON_BOX`     | Touch / layout box around each icon                      |
+| `SPRING_LEAD`  | Spring for the pill's leading edge (snappy)              |
+| `SPRING_TRAIL` | Spring for the pill's trailing edge (smooth)             |
+
+### Adding or changing icons
+
+Map a route `name` to an SF Symbol and an Ionicons fallback in `TAB_META` ([src/constants/tab-bar.ts](src/constants/tab-bar.ts)):
+
+```ts
+const TAB_META: Record<string, ITabMeta> = {
+  index: { icon: "house.fill", fallback: "home-sharp" },
+  search: { icon: "magnifyingglass", fallback: "search-sharp" },
+  apps: { icon: "square.grid.2x2", fallback: "apps-sharp" },
+  library: { icon: "book.fill", fallback: "book-sharp" },
+  profile: { icon: "person.crop.circle", fallback: "person-sharp" },
+};
+```
+
+Routes without an entry fall back to `DEFAULT_TAB_META`.
+
+---
+
+## Stack
+
+[Expo 56](https://expo.dev/changelog/sdk-56) · [React Native 0.85](https://reactnative.dev/) · [Reanimated 4](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started) · [Gesture Handler 2](https://docs.swmansion.com/react-native-gesture-handler/docs/category/gesture-handler-2/) · [Skia](https://shopify.github.io/react-native-skia/) · [Expo Glass Effect](https://docs.expo.dev/versions/latest/sdk/glass-effect/) · [Expo Router](https://docs.expo.dev/router/introduction/)
