@@ -2,6 +2,9 @@
 
 A curved, liquid-glass bottom tab bar for Expo Router with a draggable glass pill.
 
+> [!NOTE]
+> Inspired by [@60fpsdesign](https://x.com/60fpsdesign/status/1873719504620106148).
+
 ## ✨ Features
 
 - 🌊 Skia-powered curved tab bar surface with subtle bead detailing
@@ -22,6 +25,8 @@ cd expo-curved-bottom-tabs
 bun install
 bun start
 ```
+
+---
 
 ## 🎥 Preview
 
