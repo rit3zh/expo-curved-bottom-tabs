@@ -1,12 +1,11 @@
+import { CurvedTabBar } from "@/components";
+import { SAPRONA_FONTS } from "@/constants/fonts";
 import { useFonts } from "expo-font";
 import { Tabs } from "expo-router/tabs";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-
-import { CurvedTabBar } from "@/components";
-import { SAPRONA_FONTS } from "@/constants/fonts";
 
 SplashScreen.preventAutoHideAsync();
 
